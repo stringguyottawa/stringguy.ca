@@ -6,6 +6,7 @@
 <title>String Guy – Tennis Racket Stringing (Galaxy Edition)</title>
 <meta name="description" content="String Guy – precision tennis racket stringing in Ottawa. $40 strung with quality strings, hybrids and custom tensions welcome.">
 <meta name="theme-color" content="#05030f">
+<meta name="version" content="2.1">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preload" href="mascot-line.png" as="image" fetchpriority="high" crossorigin>
@@ -101,7 +102,7 @@ nav button[data-pl="0"] i::before{content:"";position:absolute;inset:-1px;border
 #fig{position:fixed;z-index:6;right:3vw;bottom:calc(var(--P)*.17);width:min(40vw,430px);pointer-events:none}
 #float{animation:bob 5s ease-in-out infinite;will-change:transform}
 @keyframes bob{50%{transform:translateY(-9px)}}
-#svg{position:relative;aspect-ratio:1;filter:drop-shadow(0 0 18px var(--glow));transition:filter 1s}
+#svg{position:relative;aspect-ratio:1;filter:drop-shadow(0 0 18px var(--glow))}#float{will-change:transform}
 .fl,.ln,#svg svg{position:absolute;inset:0;width:100%;height:100%}
 .fl{background:var(--fl);-webkit-mask:url(mascot-fill.png) center/100% 100% no-repeat;mask:url(mascot-fill.png) center/100% 100% no-repeat}
 .ln{background:var(--ln);-webkit-mask:url(mascot-line.png) center/100% 100% no-repeat;mask:url(mascot-line.png) center/100% 100% no-repeat}
@@ -120,28 +121,16 @@ nav button[data-pl="0"] i::before{content:"";position:absolute;inset:-1px;border
  #fig{width:38vw;right:2vw}.sec{padding-bottom:210px}}
 @media(prefers-reduced-motion:reduce){#float{animation:none}}
 
-/* ===== scene transitions ===== */
-.sec.out{display:block;pointer-events:none;z-index:1}
-html.vt .sec.on{view-transition-name:scene}
-html.vt .sec.on .pl{view-transition-name:planet}
-html.vt .sec.on .bg{view-transition-name:nebula}
-html.vt nav{view-transition-name:nav}
-html.vt #fig{view-transition-name:fig}
-html.vt #stars{view-transition-name:stars}
-html.vt #ring{view-transition-name:ring}
-::view-transition-old(root),::view-transition-new(root),
-::view-transition-group(nav),::view-transition-group(fig),::view-transition-group(stars),::view-transition-group(ring),
-::view-transition-new(nav),::view-transition-new(fig),::view-transition-new(stars),::view-transition-new(ring),
-::view-transition-old(scene),::view-transition-new(scene),::view-transition-old(planet),::view-transition-new(planet),
-::view-transition-old(nebula),::view-transition-new(nebula){animation:none;mix-blend-mode:normal}
-::view-transition-old(nav),::view-transition-old(fig),::view-transition-old(stars),::view-transition-old(ring){display:none}
-::view-transition-group(scene),::view-transition-group(planet),::view-transition-group(nebula){animation-duration:1.1s}
-::view-transition-image-pair(planet),::view-transition-image-pair(scene){isolation:auto}
-@media(prefers-reduced-motion:reduce){::view-transition-group(*),::view-transition-old(*),::view-transition-new(*){animation-duration:.2s!important}}
+/* ===== scene transitions (compositor-only: transform + opacity) ===== */
+.sec.out,.sec.warm{display:block;pointer-events:none}
+.sec.out{z-index:1}.sec.warm{z-index:0;opacity:0}
+.sec.on .bg,.sec.out .bg,.sec.warm .bg,.sec.on .pl,.sec.out .pl,.sec.warm .pl{will-change:transform,opacity}
+#ver{position:fixed;z-index:9;right:calc(10px + env(safe-area-inset-right,0px));bottom:calc(6px + env(safe-area-inset-bottom,0px));font:500 9px/1 Orbitron,Inter,sans-serif;letter-spacing:.14em;color:#ffffff59;text-shadow:0 1px 2px #000a;pointer-events:none;user-select:none}
 </style>
 </head>
 <body>
 <canvas id="stars" aria-hidden="true"></canvas>
+<div id="ver" aria-hidden="true">v2.1</div>
 <div id="ring" aria-hidden="true"></div>
 <nav>
  <div class="logo">STRING GUY</div>
@@ -214,9 +203,9 @@ const ic=[`<svg viewBox="0 0 800 200" aria-hidden="true"><defs><linearGradient i
  ring=document.getElementById('ring'),svg=document.getElementById('svg'),
  RM=matchMedia('(prefers-reduced-motion:reduce)').matches;
 const root=document.documentElement,fig=document.getElementById('morph'),
- slugs=names.map(n=>n.toLowerCase()),
- VT=!!document.startViewTransition&&!RM;
-let cur=0,busy=false,vt=null,live=[],tok=0,done=null;
+ slugs=names.map(n=>n.toLowerCase());
+
+let cur=0,busy=false,live=[],tok=0,done=null;
 const links=document.getElementById('links');
 names.forEach((n,i)=>{const b=document.createElement('button');b.style.setProperty('--c',cols[i]);b.dataset.pl=i;b.innerHTML='<i>'+ic[i]+'</i><span>'+n+'</span>';b.setAttribute('aria-label',n);b.onclick=e=>go(i,{e});links.appendChild(b)});
 document.querySelectorAll('[data-go]').forEach(b=>b.onclick=e=>go(+b.dataset.go,{e}));
@@ -234,33 +223,38 @@ addEventListener('popstate',()=>{const s=slugs.indexOf(location.hash.slice(1));g
    Same keyframes drive either the View Transition pseudo-elements (GPU snapshots, compositor only)
    or, as a fallback, the live elements. d = +1 forward (fly into the scene) / -1 back (pull out). */
 const EXPO='cubic-bezier(.16,1,.3,1)',IN='cubic-bezier(.55,0,.9,.4)',SWING='cubic-bezier(.22,1.25,.36,1)';
-function A(t,k,o){const a=t.pseudo?root.animate(k,{fill:'both',...o,pseudoElement:t.pseudo}):t.el.animate(k,{fill:'both',...o});live.push(a);return a}
-function choreo(T,d,x,y,c){
- const R=Math.hypot(Math.max(x,innerWidth-x),Math.max(y,innerHeight-y));
+function A(el,k,o){if(!el)return;const a=el.animate(k,{fill:'both',...o});live.push(a);return a}
+function choreo(o,n,d,x,y,c){
+ const R=Math.hypot(Math.max(x,innerWidth-x),Math.max(y,innerHeight-y)),q=s=>n.querySelector(s),p=s=>o.querySelector(s);
  // old scene rushes past the camera (forward) or falls away (back)
- A(T.so,[{opacity:1,transform:'none',filter:'blur(0)'},{opacity:0,transform:`scale(${d>0?1.35:.7})`,filter:'blur(10px)'}],{duration:520,easing:IN});
+ A(p('.in'),[{opacity:1,transform:'none'},{opacity:0,transform:`scale(${d>0?1.4:.65})`}],{duration:480,easing:IN});
  // new scene surfaces from depth
- A(T.sn,[{opacity:0,transform:`scale(${d>0?.72:1.3})`,filter:'blur(12px)'},{opacity:1,transform:'none',filter:'blur(0)'}],{duration:900,delay:260,easing:EXPO});
+ A(q('.in'),[{transform:`scale(${d>0?.8:1.2})`},{transform:'none'}],{duration:900,delay:200,easing:EXPO});
  // planets swing on an orbit
- A(T.po,[{opacity:1,transform:'none'},{opacity:0,transform:`translate(${-32*d}%,48%) rotate(${-34*d}deg) scale(.72)`}],{duration:640,easing:IN});
- A(T.pn,[{opacity:0,transform:`translate(${36*d}%,62%) rotate(${40*d}deg) scale(.6)`},{opacity:1,transform:'none'}],{duration:1050,delay:180,easing:SWING});
- // nebula opens as a portal from the origin point, hue-shifting as it settles
- A(T.bo,[{opacity:1},{opacity:0}],{duration:900,delay:200,easing:'ease-in'});
- A(T.bn,[{clipPath:`circle(0px at ${x}px ${y}px)`,filter:'hue-rotate(70deg) saturate(1.8)',transform:'scale(1.12)'},
-         {clipPath:`circle(${R}px at ${x}px ${y}px)`,filter:'none',transform:'none'}],{duration:1000,delay:60,easing:'cubic-bezier(.7,0,.2,1)'});
- // shockwave rides the portal edge
+ A(p('.pl'),[{opacity:1,transform:'none'},{opacity:0,transform:`translate(${-32*d}%,48%) rotate(${-34*d}deg) scale(.72)`}],{duration:640,easing:IN});
+ A(q('.pl'),[{opacity:0,transform:`translate(${36*d}%,62%) rotate(${40*d}deg) scale(.6)`},{opacity:1,transform:'none'}],{duration:1050,delay:180,easing:SWING});
+ // nebula zooms in and settles toward the origin point (scale >= 1, so its edges never show)
+ A(p('.bg'),[{opacity:1},{opacity:0}],{duration:800,delay:250,easing:'ease-in'});
+ A(q('.bg'),[{opacity:0,transform:'scale(1.08)',transformOrigin:`${x}px ${y}px`},{opacity:1,transform:'none',transformOrigin:`${x}px ${y}px`}],{duration:1000,delay:60,easing:EXPO});
+ // shockwave
  ring.style.cssText=`--R:${2*R}px;--rc:${c};left:${x}px;top:${y}px`;
- A({el:ring},[{transform:'scale(0)',opacity:1},{transform:'scale(.5)',opacity:.9,offset:.6},{transform:'scale(1)',opacity:0}],{duration:1000,delay:60,easing:'cubic-bezier(.7,0,.2,1)',fill:'none'});
+ A(ring,[{transform:'scale(0)',opacity:1},{transform:'scale(.5)',opacity:.9,offset:.6},{transform:'scale(1)',opacity:0}],{duration:1000,delay:60,easing:'cubic-bezier(.7,0,.2,1)',fill:'none'});
 }
 function stagger(sec){
  sec.querySelectorAll('.in>:not(ul):not(.cards),.in li,.in .cards>.card').forEach((el,k)=>
-  A({el},[{opacity:0,transform:'translateY(26px)',filter:'blur(6px)'},{opacity:1,transform:'none',filter:'blur(0)'}],{duration:700,delay:320+k*65,easing:EXPO,fill:'backwards'}));
+  A(el,[{opacity:0,transform:'translateY(26px)'},{opacity:1,transform:'none'}],{duration:650,delay:300+k*60,easing:EXPO,fill:'backwards'}));
 }
+// pre-warm: paint the destination scene (invisibly) on hover/press so the click has nothing to rasterise
+let warm=null;
+function prewarm(i){if(i===cur||busy)return;if(warm&&warm!==secs[i])warm.classList.remove('warm');warm=secs[i];warm.classList.add('warm')}
+function cool(){if(warm){warm.classList.remove('warm');warm=null}}
+btns.forEach((b,i)=>{b.addEventListener('pointerenter',()=>prewarm(i));b.addEventListener('pointerdown',()=>prewarm(i),{passive:true});b.addEventListener('focus',()=>prewarm(i));b.addEventListener('pointerleave',()=>{if(!busy)setTimeout(()=>{if(!busy&&!btns.some(x=>x.matches(':hover')))cool()},400)})});
+document.querySelectorAll('[data-go]').forEach(b=>{const i=+b.dataset.go;b.addEventListener('pointerenter',()=>prewarm(i));b.addEventListener('pointerdown',()=>prewarm(i),{passive:true})});
 function settle(){live.forEach(a=>{try{a.finish()}catch(_){}});live=[]}
 
 function go(i,{e,dir,hist=true}={}){
  if(i===cur||i<0)return;
- if(busy){vt&&vt.skipTransition();settle();done&&done()}
+ if(busy){settle();done&&done()}
  busy=true;const my=++tok;
  const o=secs[cur],n=secs[i],d=dir||(i>cur?1:-1),b=btns[i].getBoundingClientRect(),
   x=e&&e.clientX&&!btns.includes(e.currentTarget)?e.clientX:b.left+b.width/2,
@@ -268,24 +262,15 @@ function go(i,{e,dir,hist=true}={}){
  cur=i;mark(i);place(i,d);
  if(hist)history.pushState(null,'',i?'#'+slugs[i]:location.pathname);
  const swap=()=>{o.classList.remove('on');n.classList.add('on');n.scrollTop=0};
+ cool();
  if(RM){swap();svg.dataset.f=forms[i];busy=false;return}
  warpTo(d,cols[i]);
  fig.animate(jump(d),{duration:900});
  setTimeout(()=>svg.dataset.f=forms[i],450);
- const P=(s,k)=>({pseudo:`::view-transition-${s}(${k})`}),
-  T=VT?{so:P('old','scene'),sn:P('new','scene'),po:P('old','planet'),pn:P('new','planet'),bo:P('old','nebula'),bn:P('new','nebula')}
-      :{so:{el:o.querySelector('.in')},sn:{el:n.querySelector('.in')},po:{el:o.querySelector('.pl')},pn:{el:n.querySelector('.pl')},bo:{el:o.querySelector('.bg')},bn:{el:n.querySelector('.bg')}};
- if(VT){
-  root.classList.add('vt');
-  vt=document.startViewTransition(()=>{swap();stagger(n)});
-  vt.ready.then(()=>choreo(T,d,x,y,cols[i])).catch(()=>{});
-  vt.finished.finally(()=>{vt=null;finish()});
- }else{
-  o.classList.add('out');swap();stagger(n);choreo(T,d,x,y,cols[i]);
-  setTimeout(finish,1250);
- }
- function finish(){if(my!==tok)return;o.classList.remove('out');root.classList.remove('vt');live=live.filter(a=>a.playState==='running');busy=false;done=null}
- done=()=>{o.classList.remove('out');root.classList.remove('vt')};
+ o.classList.add('out');swap();stagger(n);choreo(o,n,d,x,y,cols[i]);
+ const t=setTimeout(finish,1250);
+ function finish(){if(my!==tok)return;o.classList.remove('out');live=live.filter(a=>a.playState==='running');busy=false;done=null}
+ done=()=>{clearTimeout(t);o.classList.remove('out')};
 }
 const nav=(s,dir)=>go((cur+s+5)%5,{dir});
 addEventListener('keydown',e=>{if(e.target.closest&&e.target.closest('input,textarea'))return;if(e.key==='ArrowRight')nav(1,1);if(e.key==='ArrowLeft')nav(-1,-1)});
@@ -311,25 +296,29 @@ function jump(d){const H=Math.min(innerHeight*.28,260),r=7*d;return[
  {offset:1,transform:'translateY(0) scale(1,1)'}]}
 
 /* ---- starfield: DPR-aware, frame-rate independent, with signed hyperspace warp ---- */
-const cv=document.getElementById('stars'),g=cv.getContext('2d');let W,H,M,S=[],boost=0,boostT=0,wdir=1,tint='#fff';
-function rs(){const r=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;M=Math.hypot(W,H)/2;cv.width=W*r;cv.height=H*r;g.setTransform(r,0,0,r,0,0);g.lineCap='round'}
+const cv=document.getElementById('stars'),g=cv.getContext('2d');let W,H,M,boost=0,boostT=0,wdir=1,tint='#fff';
+function rs(){const r=Math.min(devicePixelRatio||1,1.5);W=innerWidth;H=innerHeight;M=Math.hypot(W,H)/2;cv.width=W*r;cv.height=H*r;g.setTransform(r,0,0,r,0,0);g.lineCap='round'}
 addEventListener('resize',rs);rs();
-const NS=Math.round(Math.min(260,Math.max(110,W*H/6500)));
-for(let k=0;k<NS;k++){const h=Math.random()*360,z=Math.random()*.9+.1;S.push({a:Math.random()*6.283,r:Math.random()*M,z,t:Math.random()<.4,col:`hsla(${h>200?h:220},80%,${70+z*30}%,${.35+z*.65})`})}
+// stars are grouped into a few colour/size buckets so each frame is ~16 strokes instead of hundreds
+const NS=Math.round(Math.min(240,Math.max(110,W*H/7000))),HUES=[220,250,290,330],B=[];
+for(let zi=0;zi<4;zi++)for(let hi=0;hi<4;hi++){const z=.1+zi*.3;B.push({z,col:`hsla(${HUES[hi]},80%,${70+z*30}%,${.35+z*.65})`,s:[],t:[]})}
+for(let k=0;k<NS;k++){const zi=Math.random()*4|0,b=B[zi*4+(Math.random()*4|0)],s={a:Math.random()*6.283,r:Math.random()*M,z:b.z+Math.random()*.2};(Math.random()<.4?b.t:b.s).push(s)}
 function warpTo(d,c){wdir=d;boostT=26;tint=c}
 let last=performance.now();
 (function f(now){
  const dt=Math.min((now-last)/16.67,3);last=now;
  boostT+=(0-boostT)*Math.min(1,.045*dt);boost+=(boostT-boost)*Math.min(1,.2*dt);
- const v=(RM?.3:1)+boost*wdir,streak=1+boost*.9,cx=W/2,cy=H/2;
+ const v=(RM?.3:1)+boost*wdir,streak=1+boost*.9,cx=W/2,cy=H/2,tinted=boost>4,lw=1.4+Math.min(boost,12)*.08;
  g.clearRect(0,0,W,H);
- for(const s of S){
-  const dr=(.12+s.z*.5)*v*(.4+s.r/M*1.4)*dt;
-  s.r+=dr;
+ const step=(s,warp)=>{
+  const dr=(.12+s.z*.5)*v*(.4+s.r/M*1.4)*dt;s.r+=dr;
   if(s.r>M){s.r=Math.random()*40;s.a=Math.random()*6.283}else if(s.r<1){s.r=M*(.5+Math.random()*.5);s.a=Math.random()*6.283}
   const ca=Math.cos(s.a),sa=Math.sin(s.a),x=cx+ca*s.r,y=cy+sa*s.r,br=s.r-dr*streak;
-  g.strokeStyle=boost>4&&s.t?tint:s.col;g.lineWidth=s.z*(1.4+Math.min(boost,12)*.08);
-  g.beginPath();g.moveTo(boost>1.5?cx+ca*br:x,boost>1.5?cy+sa*br:y);g.lineTo(x+.01,y);g.stroke();
+  g.moveTo(warp?cx+ca*br:x,warp?cy+sa*br:y);g.lineTo(x+.01,y)};
+ const warp=boost>1.5;
+ for(const b of B){
+  g.lineWidth=b.z*lw;g.strokeStyle=b.col;g.beginPath();for(const s of b.s)step(s,warp);if(!tinted)for(const s of b.t)step(s,warp);g.stroke();
+  if(tinted){g.strokeStyle=tint;g.beginPath();for(const s of b.t)step(s,warp);g.stroke()}
  }
  requestAnimationFrame(f);
 })(last);
