@@ -6,7 +6,7 @@
 <title>String Guy – Tennis Racket Stringing (Galaxy Edition)</title>
 <meta name="description" content="String Guy – precision tennis racket stringing in Ottawa. $40 strung with quality strings, hybrids and custom tensions welcome.">
 <meta name="theme-color" content="#05030f">
-<meta name="version" content="2.2">
+<meta name="version" content="2.3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preload" href="mascot-line.png" as="image" fetchpriority="high" crossorigin>
@@ -135,7 +135,7 @@ nav button[data-pl="0"] i::before{content:"";position:absolute;inset:-1px;border
 </head>
 <body>
 <canvas id="stars" aria-hidden="true"></canvas>
-<div id="ver" aria-hidden="true">v2.2</div>
+<div id="ver" aria-hidden="true">v2.3</div>
 <div id="ring" aria-hidden="true"></div>
 <nav>
  <div class="logo">STRING GUY</div>
@@ -218,7 +218,7 @@ if(LITE)document.documentElement.classList.add('lite');
 const root=document.documentElement,fig=document.getElementById('morph'),
  slugs=names.map(n=>n.toLowerCase());
 
-let cur=0,busy=false,live=[],tok=0,done=null;
+let cur=0,busy=false,live=[],fresh=[],tok=0,done=null;
 const links=document.getElementById('links');
 names.forEach((n,i)=>{const b=document.createElement('button');b.style.setProperty('--c',cols[i]);b.dataset.pl=i;b.innerHTML='<i>'+ic[i]+'</i><span>'+n+'</span>';b.setAttribute('aria-label',n);b.onclick=e=>go(i,{e});links.appendChild(b)});
 document.querySelectorAll('[data-go]').forEach(b=>b.onclick=e=>go(+b.dataset.go,{e}));
@@ -236,18 +236,18 @@ addEventListener('popstate',()=>{const s=slugs.indexOf(location.hash.slice(1));g
    Same keyframes drive either the View Transition pseudo-elements (GPU snapshots, compositor only)
    or, as a fallback, the live elements. d = +1 forward (fly into the scene) / -1 back (pull out). */
 const EXPO='cubic-bezier(.16,1,.3,1)',IN='cubic-bezier(.55,0,.9,.4)',SWING='cubic-bezier(.22,1.25,.36,1)';
-function A(el,k,o){if(!el)return;const a=el.animate(k,{fill:'both',...o});live.push(a);return a}
+function A(el,k,o,exit){if(!el)return;const a=el.animate(k,{fill:'both',...o});if(exit)live.push(a);else{fresh.push(a);a.onfinish=()=>{a.cancel();fresh=fresh.filter(x=>x!==a)}}return a}
 function choreo(o,n,d,x,y,c){
  const R=Math.hypot(Math.max(x,innerWidth-x),Math.max(y,innerHeight-y)),q=s=>n.querySelector(s),p=s=>o.querySelector(s);
  // old scene rushes past the camera (forward) or falls away (back)
- A(p('.in'),[{opacity:1,transform:'none'},{opacity:0,transform:`scale(${d>0?1.4:.65})`}],{duration:480,easing:IN});
+ A(p('.in'),[{opacity:1,transform:'none'},{opacity:0,transform:`scale(${d>0?1.4:.65})`}],{duration:480,easing:IN},1);
  // new scene surfaces from depth
  A(q('.in'),[{transform:`scale(${d>0?.8:1.2})`},{transform:'none'}],{duration:900,delay:200,easing:EXPO});
  // planets swing on an orbit
- A(p('.pl'),[{opacity:1,transform:'none'},{opacity:0,transform:`translate(${-32*d}%,48%) rotate(${-34*d}deg) scale(.72)`}],{duration:640,easing:IN});
+ A(p('.pl'),[{opacity:1,transform:'none'},{opacity:0,transform:`translate(${-32*d}%,48%) rotate(${-34*d}deg) scale(.72)`}],{duration:640,easing:IN},1);
  A(q('.pl'),[{opacity:0,transform:`translate(${36*d}%,62%) rotate(${40*d}deg) scale(.6)`},{opacity:1,transform:'none'}],{duration:1050,delay:180,easing:SWING});
  // nebula zooms in and settles toward the origin point (scale >= 1, so its edges never show)
- A(p('.bg'),[{opacity:1},{opacity:0}],{duration:800,delay:250,easing:'ease-in'});
+ A(p('.bg'),[{opacity:1},{opacity:0}],{duration:800,delay:250,easing:'ease-in'},1);
  A(q('.bg'),[{opacity:0,transform:'scale(1.08)',transformOrigin:`${x}px ${y}px`},{opacity:1,transform:'none',transformOrigin:`${x}px ${y}px`}],{duration:1000,delay:60,easing:EXPO});
  // shockwave
  ring.style.cssText=`--R:${2*R}px;--rc:${c};left:${x}px;top:${y}px`;
@@ -263,7 +263,7 @@ function prewarm(i){if(i===cur||busy)return;if(warm&&warm!==secs[i])warm.classLi
 function cool(){if(warm){warm.classList.remove('warm');warm=null}}
 btns.forEach((b,i)=>{b.addEventListener('pointerenter',()=>LITE||prewarm(i));b.addEventListener('pointerdown',()=>prewarm(i),{passive:true});b.addEventListener('focus',()=>prewarm(i));b.addEventListener('pointerleave',()=>{if(!busy)setTimeout(()=>{if(!busy&&!btns.some(x=>x.matches(':hover')))cool()},400)})});
 document.querySelectorAll('[data-go]').forEach(b=>{const i=+b.dataset.go;b.addEventListener('pointerenter',()=>prewarm(i));b.addEventListener('pointerdown',()=>prewarm(i),{passive:true})});
-function settle(){live.forEach(a=>{try{a.finish()}catch(_){}});live=[]}
+function settle(){[...live,...fresh].forEach(a=>{try{a.cancel()}catch(_){}});live=[];fresh=[]}
 
 function go(i,{e,dir,hist=true}={}){
  if(i===cur||i<0)return;
@@ -285,7 +285,7 @@ function go(i,{e,dir,hist=true}={}){
  setTimeout(()=>svg.dataset.f=forms[i],450);
  o.classList.add('out');swap();stagger(n);choreo(o,n,d,x,y,cols[i]);
  const t=setTimeout(finish,1250);
- function finish(){if(my!==tok)return;o.classList.remove('out');live=live.filter(a=>a.playState==='running');busy=false;done=null}
+ function finish(){if(my!==tok)return;o.classList.remove('out');live.forEach(a=>a.cancel());live=[];busy=false;done=null}
  done=()=>{clearTimeout(t);o.classList.remove('out')};
 }
 const nav=(s,dir)=>go((cur+s+5)%5,{dir});
