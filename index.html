@@ -6,7 +6,7 @@
 <title>String Guy – Tennis Racket Stringing (Galaxy Edition)</title>
 <meta name="description" content="String Guy – precision tennis racket stringing in Ottawa. $40 strung with quality strings, hybrids and custom tensions welcome.">
 <meta name="theme-color" content="#05030f">
-<meta name="version" content="2.1">
+<meta name="version" content="2.2">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preload" href="mascot-line.png" as="image" fetchpriority="high" crossorigin>
@@ -125,12 +125,17 @@ nav button[data-pl="0"] i::before{content:"";position:absolute;inset:-1px;border
 .sec.out,.sec.warm{display:block;pointer-events:none}
 .sec.out{z-index:1}.sec.warm{z-index:0;opacity:0}
 .sec.on .bg,.sec.out .bg,.sec.warm .bg,.sec.on .pl,.sec.out .pl,.sec.warm .pl{will-change:transform,opacity}
+/* ===== lite mode: software rendering / slow devices ===== */
+.lite .bg::before{filter:none!important;animation:none!important}
+.lite #svg{filter:none}
+.lite #float,.lite .b7 svg,.lite .b7 .lt,.lite .spark circle,.lite nav button i,.lite nav button i svg,.lite .mk svg *{animation:none!important}
+.lite .pl{box-shadow:none;will-change:auto}.lite .sec .bg{will-change:auto}
 #ver{position:fixed;z-index:9;right:calc(10px + env(safe-area-inset-right,0px));bottom:calc(6px + env(safe-area-inset-bottom,0px));font:500 9px/1 Orbitron,Inter,sans-serif;letter-spacing:.14em;color:#ffffff59;text-shadow:0 1px 2px #000a;pointer-events:none;user-select:none}
 </style>
 </head>
 <body>
 <canvas id="stars" aria-hidden="true"></canvas>
-<div id="ver" aria-hidden="true">v2.1</div>
+<div id="ver" aria-hidden="true">v2.2</div>
 <div id="ring" aria-hidden="true"></div>
 <nav>
  <div class="logo">STRING GUY</div>
@@ -202,6 +207,14 @@ const ic=[`<svg viewBox="0 0 800 200" aria-hidden="true"><defs><linearGradient i
  secs=[...document.querySelectorAll('.sec')],
  ring=document.getElementById('ring'),svg=document.getElementById('svg'),
  RM=matchMedia('(prefers-reduced-motion:reduce)').matches;
+/* Lite mode: if the browser is drawing in software (graphics acceleration off, old/blocked GPU),
+   fall back to simple fades. Override with ?lite=1 or ?lite=0. */
+let LITE=(()=>{const q=new URLSearchParams(location.search).get('lite');if(q)return q==='1';
+ try{const c=document.createElement('canvas'),gl=c.getContext('webgl',{failIfMajorPerformanceCaveat:true});if(!gl)return true;
+  const e=gl.getExtension('WEBGL_debug_renderer_info'),r=e?gl.getParameter(e.UNMASKED_RENDERER_WEBGL):'';
+  gl.getExtension('WEBGL_lose_context')?.loseContext();return /swiftshader|llvmpipe|softpipe|software|basic render/i.test(r)}catch(_){return false}})();
+function setLite(){if(LITE)return;LITE=true;document.documentElement.classList.add('lite');B.forEach(b=>{b.s.length=Math.ceil(b.s.length*.35);b.t.length=Math.ceil(b.t.length*.35)});rs()}
+if(LITE)document.documentElement.classList.add('lite');
 const root=document.documentElement,fig=document.getElementById('morph'),
  slugs=names.map(n=>n.toLowerCase());
 
@@ -248,7 +261,7 @@ function stagger(sec){
 let warm=null;
 function prewarm(i){if(i===cur||busy)return;if(warm&&warm!==secs[i])warm.classList.remove('warm');warm=secs[i];warm.classList.add('warm')}
 function cool(){if(warm){warm.classList.remove('warm');warm=null}}
-btns.forEach((b,i)=>{b.addEventListener('pointerenter',()=>prewarm(i));b.addEventListener('pointerdown',()=>prewarm(i),{passive:true});b.addEventListener('focus',()=>prewarm(i));b.addEventListener('pointerleave',()=>{if(!busy)setTimeout(()=>{if(!busy&&!btns.some(x=>x.matches(':hover')))cool()},400)})});
+btns.forEach((b,i)=>{b.addEventListener('pointerenter',()=>LITE||prewarm(i));b.addEventListener('pointerdown',()=>prewarm(i),{passive:true});b.addEventListener('focus',()=>prewarm(i));b.addEventListener('pointerleave',()=>{if(!busy)setTimeout(()=>{if(!busy&&!btns.some(x=>x.matches(':hover')))cool()},400)})});
 document.querySelectorAll('[data-go]').forEach(b=>{const i=+b.dataset.go;b.addEventListener('pointerenter',()=>prewarm(i));b.addEventListener('pointerdown',()=>prewarm(i),{passive:true})});
 function settle(){live.forEach(a=>{try{a.finish()}catch(_){}});live=[]}
 
@@ -264,6 +277,9 @@ function go(i,{e,dir,hist=true}={}){
  const swap=()=>{o.classList.remove('on');n.classList.add('on');n.scrollTop=0};
  cool();
  if(RM){swap();svg.dataset.f=forms[i];busy=false;return}
+ if(LITE){swap();svg.dataset.f=forms[i];warpTo(d,cols[i],6);
+  A(n.querySelector('.in'),[{opacity:0,transform:'translateY(14px)'},{opacity:1,transform:'none'}],{duration:350,easing:EXPO});
+  const t=setTimeout(()=>{if(my===tok){busy=false;done=null}},350);done=()=>clearTimeout(t);return}
  warpTo(d,cols[i]);
  fig.animate(jump(d),{duration:900});
  setTimeout(()=>svg.dataset.f=forms[i],450);
@@ -279,7 +295,7 @@ let tx,ty,tt;
 addEventListener('touchstart',e=>{const t=e.touches[0];tx=t.clientX;ty=t.clientY;tt=performance.now()},{passive:true});
 addEventListener('touchend',e=>{const t=e.changedTouches[0],dx=t.clientX-tx,dy=t.clientY-ty;if(performance.now()-tt<700&&Math.abs(dx)>70&&Math.abs(dx)>1.6*Math.abs(dy))nav(dx<0?1:-1,dx<0?1:-1)},{passive:true});
 
-function pew(){if(RM||busy||document.hidden)return;const r=mk.firstChild.getBoundingClientRect(),lf=/-1/.test(mk.firstChild.style.transform),x=lf?r.left:r.right,y=r.top+r.height/2,c=['#ff4fd8','#4fe3ff','#c6f432'][Math.random()*3|0],d=document.createElement('div');
+function pew(){if(RM||LITE||busy||document.hidden)return;const r=mk.firstChild.getBoundingClientRect(),lf=/-1/.test(mk.firstChild.style.transform),x=lf?r.left:r.right,y=r.top+r.height/2,c=['#ff4fd8','#4fe3ff','#c6f432'][Math.random()*3|0],d=document.createElement('div');
  d.style.cssText=`position:fixed;z-index:9;pointer-events:none;left:${lf?0:x}px;top:${y-4}px;width:${lf?x:innerWidth-x}px;height:8px;border-radius:8px;transform-origin:${lf?'right':'left'} center;background:linear-gradient(${lf?270:90}deg,#fff 0,#fff 35%,${c} 70%,transparent);box-shadow:0 0 14px 4px ${c},0 0 40px 10px ${c}66`;
  document.body.appendChild(d);
  d.animate([{transform:'scaleX(0) scaleY(.4)',opacity:1},{transform:'scaleX(1) scaleY(1)',opacity:1,offset:.12},{transform:'scaleX(1) scaleY(.7)',opacity:.9,offset:.3},{transform:'scaleX(1) scaleY(1)',opacity:1,offset:.5},{transform:'scaleX(1) scaleY(.1)',opacity:0}],{duration:900,easing:'ease-out'}).onfinish=()=>d.remove()}
@@ -297,13 +313,13 @@ function jump(d){const H=Math.min(innerHeight*.28,260),r=7*d;return[
 
 /* ---- starfield: DPR-aware, frame-rate independent, with signed hyperspace warp ---- */
 const cv=document.getElementById('stars'),g=cv.getContext('2d');let W,H,M,boost=0,boostT=0,wdir=1,tint='#fff';
-function rs(){const r=Math.min(devicePixelRatio||1,1.5);W=innerWidth;H=innerHeight;M=Math.hypot(W,H)/2;cv.width=W*r;cv.height=H*r;g.setTransform(r,0,0,r,0,0);g.lineCap='round'}
+function rs(){const r=LITE?1:Math.min(devicePixelRatio||1,1.5);W=innerWidth;H=innerHeight;M=Math.hypot(W,H)/2;cv.width=W*r;cv.height=H*r;g.setTransform(r,0,0,r,0,0);g.lineCap='round'}
 addEventListener('resize',rs);rs();
 // stars are grouped into a few colour/size buckets so each frame is ~16 strokes instead of hundreds
-const NS=Math.round(Math.min(240,Math.max(110,W*H/7000))),HUES=[220,250,290,330],B=[];
+const NS=LITE?70:Math.round(Math.min(240,Math.max(110,W*H/7000))),HUES=[220,250,290,330],B=[];
 for(let zi=0;zi<4;zi++)for(let hi=0;hi<4;hi++){const z=.1+zi*.3;B.push({z,col:`hsla(${HUES[hi]},80%,${70+z*30}%,${.35+z*.65})`,s:[],t:[]})}
 for(let k=0;k<NS;k++){const zi=Math.random()*4|0,b=B[zi*4+(Math.random()*4|0)],s={a:Math.random()*6.283,r:Math.random()*M,z:b.z+Math.random()*.2};(Math.random()<.4?b.t:b.s).push(s)}
-function warpTo(d,c){wdir=d;boostT=26;tint=c}
+function warpTo(d,c,k){wdir=d;boostT=k||26;tint=c}
 let last=performance.now();
 (function f(now){
  const dt=Math.min((now-last)/16.67,3);last=now;
@@ -322,6 +338,9 @@ let last=performance.now();
  }
  requestAnimationFrame(f);
 })(last);
+// watchdog: if idle frames are clearly struggling after load, switch to lite mode
+addEventListener('load',()=>setTimeout(()=>{if(LITE||document.hidden||new URLSearchParams(location.search).has('lite'))return;const f=[];let l=performance.now();
+ (function s(t){f.push(t-l);l=t;if(f.length<46)requestAnimationFrame(s);else{if(document.hidden)return;const m=f.slice(6).sort((a,b)=>a-b)[20];if(m>30)setLite()}})(l)},1200));
 </script>
 </body>
 </html>
