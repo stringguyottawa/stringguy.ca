@@ -6,7 +6,7 @@
 <title>String Guy – Tennis Racket Stringing (Galaxy Edition)</title>
 <meta name="description" content="String Guy – precision tennis racket stringing in Ottawa. $40 strung with quality strings, hybrids and custom tensions welcome.">
 <meta name="theme-color" content="#05030f">
-<meta name="version" content="2.3">
+<meta name="version" content="2.4">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preload" href="mascot-line.png" as="image" fetchpriority="high" crossorigin>
@@ -25,12 +25,14 @@ nav{position:fixed;top:env(safe-area-inset-top,0px);left:0;right:0;z-index:8;dis
 .links{position:relative;display:flex;gap:clamp(6px,2.2vw,26px);padding-top:16px}
 .links::before{content:"";position:absolute;left:24px;right:24px;top:42px;border-top:2px dashed #ffffff33}
 nav button{position:relative;background:none;border:0;color:var(--mu);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:5px;padding:0;width:clamp(48px,12vw,66px);font:700 10px Orbitron,sans-serif;letter-spacing:.08em;text-transform:uppercase;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
-@media(min-width:600px){nav button{font-size:11px;width:clamp(56px,10vw,78px)}}
+@media(min-width:600px){nav button{font-size:11px;width:auto;min-width:clamp(56px,10vw,78px)}}
 nav button i{font-style:normal;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font-size:19px;background:radial-gradient(circle at 32% 28%,#fff9,var(--c) 45%,#000b);box-shadow:0 0 12px -2px var(--c);transition:transform .3s,box-shadow .3s}
 nav button:hover i,nav button.on i{transform:none;outline:2px solid var(--c);outline-offset:3px;box-shadow:inset -9px -7px 14px #000c,0 0 18px 2px var(--c)}
 nav button.on{color:#fff}
 .mk{position:absolute;top:-6px;left:0;font-size:20px;pointer-events:none;transition:transform 1.2s cubic-bezier(.65,0,.35,1);z-index:2;will-change:transform}
 .mk svg{display:block;filter:drop-shadow(0 0 6px #c6f432aa)}.fx{transform-origin:6px 14px;animation:fl .18s infinite alternate}.sv path,.sh path{stroke:#ffffff88;stroke-width:.8;animation-duration:.45s;animation-iteration-count:infinite;animation-timing-function:ease-in-out}.sv path{animation-name:sv}.sh path{animation-name:sh}@keyframes sv{0%,100%{transform:translateX(-.8px);stroke:#ffffff88}50%{transform:translateX(.8px);stroke:#c6f432}}@keyframes sh{0%,100%{transform:translateY(-.8px);stroke:#ffffff88}50%{transform:translateY(.8px);stroke:#4fe3ff}}.sv path:nth-child(2),.sh path:nth-child(2){animation-delay:.09s}.sv path:nth-child(3),.sh path:nth-child(3){animation-delay:.18s}.sv path:nth-child(4),.sh path:nth-child(4){animation-delay:.27s}.sv path:nth-child(5),.sh path:nth-child(5){animation-delay:.36s}@keyframes fl{to{transform:scaleX(.6)}}
+nav button span{white-space:nowrap;transition:opacity .3s}nav button span::before{content:attr(data-l)}
+.links.tight button:not(.on) span{opacity:0}
 .mk span{display:block;transform:translateX(-50%);transition:transform .35s cubic-bezier(.3,1.6,.5,1)}
 .sec{position:absolute;inset:0;display:none;overflow-y:auto;padding:96px 6vw 60px;z-index:2}
 .sec.on{display:block}.sec.top{z-index:3}
@@ -117,7 +119,7 @@ nav button[data-pl="0"] i::before{content:"";position:absolute;inset:-1px;border
 [data-f=astro] .helm,[data-f=alien] .ant,[data-f=titan] .halo,[data-f=nebula] .spark{opacity:1}
 .spark circle{animation:tw 1.6s infinite alternate}.spark circle:nth-child(2n){animation-delay:.5s}.spark circle:nth-child(3n){animation-delay:1s}
 @keyframes tw{from{opacity:.2}to{opacity:1}}
-@media(max-width:600px){.logo{display:none}nav{justify-content:center}
+@media(max-width:600px){.logo{display:none}nav{justify-content:center}nav{padding-left:max(6px,env(safe-area-inset-left,0px));padding-right:max(6px,env(safe-area-inset-right,0px))}.links{flex:1;max-width:460px;gap:0}.links::before{left:10%;right:10%}nav button{flex:1 1 0;width:auto;min-width:0;font-size:clamp(8px,2.6vw,10px);letter-spacing:.05em}nav button[data-pl="3"] i::before{width:58px;margin-left:-29px}nav button span::before{content:attr(data-s)}
  #fig{width:38vw;right:2vw}.sec{padding-bottom:210px}}
 @media(prefers-reduced-motion:reduce){#float{animation:none}}
 
@@ -135,7 +137,7 @@ nav button[data-pl="0"] i::before{content:"";position:absolute;inset:-1px;border
 </head>
 <body>
 <canvas id="stars" aria-hidden="true"></canvas>
-<div id="ver" aria-hidden="true">v2.3</div>
+<div id="ver" aria-hidden="true">v2.4</div>
 <div id="ring" aria-hidden="true"></div>
 <nav>
  <div class="logo">STRING GUY</div>
@@ -220,12 +222,16 @@ const root=document.documentElement,fig=document.getElementById('morph'),
 
 let cur=0,busy=false,live=[],fresh=[],tok=0,done=null;
 const links=document.getElementById('links');
-names.forEach((n,i)=>{const b=document.createElement('button');b.style.setProperty('--c',cols[i]);b.dataset.pl=i;b.innerHTML='<i>'+ic[i]+'</i><span>'+n+'</span>';b.setAttribute('aria-label',n);b.onclick=e=>go(i,{e});links.appendChild(b)});
+const short=['Home','Pricing','Strings','About','Contact'];
+names.forEach((n,i)=>{const b=document.createElement('button');b.style.setProperty('--c',cols[i]);b.dataset.pl=i;b.innerHTML='<i>'+ic[i]+'</i><span data-l="'+n+'" data-s="'+(short[i]||n)+'"></span>';b.setAttribute('aria-label',n);b.onclick=e=>go(i,{e});links.appendChild(b)});
 document.querySelectorAll('[data-go]').forEach(b=>b.onclick=e=>go(+b.dataset.go,{e}));
 const btns=[...links.querySelectorAll('button')],mk=document.getElementById('mk');
 function mark(i){btns.forEach((b,j)=>{b.classList.toggle('on',i===j);b.toggleAttribute('aria-current',i===j)})}
 function place(i,d){const b=btns[i];mk.style.transform='translateX('+Math.round(b.offsetLeft+b.offsetWidth/2)+'px)';if(d)mk.firstChild.style.transform='translateX(-50%) scaleX('+d+')'}
-let rz;addEventListener('resize',()=>{cancelAnimationFrame(rz);rz=requestAnimationFrame(()=>place(cur))});
+function fitNav(){links.classList.remove('tight');const L=btns.map(b=>b.querySelector('span').getBoundingClientRect());
+ for(let k=0;k<L.length-1;k++)if(L[k].right+3>L[k+1].left){links.classList.add('tight');break}}
+let rz;addEventListener('resize',()=>{cancelAnimationFrame(rz);rz=requestAnimationFrame(()=>{fitNav();place(cur)})});
+fitNav();document.fonts&&document.fonts.ready.then(()=>{fitNav();place(cur)});
 
 // deep links: stringguy.ca/#pricing
 {const s=slugs.indexOf(location.hash.slice(1));if(s>0){secs[0].classList.remove('on');secs[s].classList.add('on');svg.dataset.f=forms[s];cur=s}}
