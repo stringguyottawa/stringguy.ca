@@ -1,4 +1,3 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -33,7 +32,7 @@ h2{font-size:clamp(26px,4.5vw,40px);margin:0 0 20px;color:#fff}
 p{color:var(--mu);margin:0 0 14px}
 .btn{display:inline-block;margin-top:14px;padding:13px 24px;border-radius:99px;border:0;background:linear-gradient(90deg,var(--cy),var(--pk));color:#10051f;font:800 13px Orbitron,sans-serif;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;text-decoration:none;box-shadow:0 0 28px -4px var(--pk)}
 .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px}
-.card{padding:26px 20px;border-radius:20px;background:#ffffff0d;border:1px solid #ffffff22;backdrop-filter:blur(8px);text-align:center}
+.card{padding:26px 20px;border-radius:20px;background:#ffffff0d;border:1px solid #ffffff22;text-align:center}
 .card b{display:block;font:800 44px Orbitron,sans-serif;color:var(--ac);text-shadow:0 0 22px var(--ac)}
 .card span{color:var(--mu);text-transform:uppercase;letter-spacing:.14em;font-size:12px}
 ul{list-style:none;padding:0;margin:0}
@@ -48,14 +47,14 @@ li i{flex:none;width:22px;height:22px;border-radius:50%;background:var(--c);box-
 .b5{background:linear-gradient(162deg,transparent 30%,#4fe3ff1c 45%,#9fe9ff26 50%,#4fe3ff1c 55%,transparent 70%),radial-gradient(ellipse 60% 25% at 20% 85%,#2b6bff1a,transparent 70%)}
 .b5::before{inset:-20%;transform:rotate(-18deg);-webkit-mask:linear-gradient(transparent 33%,#000 44%,#000 56%,transparent 67%);mask:linear-gradient(transparent 33%,#000 44%,#000 56%,transparent 67%);filter:blur(.4px);background:radial-gradient(circle,#d8f6ffcc 0 1.2px,transparent 2px) 0 0/53px 47px,radial-gradient(circle,#9fe9ffaa 0 1.8px,transparent 2.8px) 17px 23px/97px 83px,radial-gradient(circle,#eaffffcc 0 .9px,transparent 1.6px) 31px 9px/29px 37px,radial-gradient(ellipse 4px 2.5px,#bdefffaa 0 60%,transparent 100%) 5px 40px/131px 109px,radial-gradient(circle at 20% 55%,#e6ffffcc 0 .8vmin,transparent 1.1vmin),radial-gradient(circle at 33% 47%,#cdeeffcc 0 .6vmin,transparent .9vmin),radial-gradient(circle at 47% 52%,#e6faffcc 0 1vmin,transparent 1.3vmin),radial-gradient(circle at 61% 45%,#bfe6ffcc 0 .7vmin,transparent 1vmin),radial-gradient(circle at 74% 51%,#e6faffcc 0 .9vmin,transparent 1.2vmin),radial-gradient(circle at 86% 46%,#cdeeffcc 0 .6vmin,transparent .9vmin)}
 .b6{background:radial-gradient(circle at 74% 22%,#fff 0 1.1vmin,#d6e4ff 1.6vmin,#7a8cff 3.2vmin,#7a4bff55 6.5vmin,transparent 15vmin),radial-gradient(circle at 74% 22%,transparent 0 6.2vmin,#9a6bff44 6.5vmin,transparent 7.6vmin),radial-gradient(ellipse 45% 40% at 74% 22%,#5a3bff1f,transparent 70%)}
-.b6::before{background:conic-gradient(from 12deg at 74% 22%,transparent 0 6deg,#9a6bffaa 8deg,transparent 12deg,transparent 95deg,#4fe3ffaa 98deg,transparent 102deg,transparent 168deg,#ff4fd8aa 171deg,transparent 176deg,transparent 240deg,#9a6bffaa 243deg,transparent 249deg,transparent 300deg,#4fe3ff88 303deg,transparent 307deg);-webkit-mask:radial-gradient(circle at 74% 22%,transparent 0 3vmin,#000 5vmin,transparent 38vmin);mask:radial-gradient(circle at 74% 22%,transparent 0 3vmin,#000 5vmin,transparent 38vmin);filter:blur(5px);transform-origin:74% 22%;animation:vent 4s ease-in-out infinite}
+.b6::before{background:conic-gradient(from 12deg at 74% 22%,transparent 0 6deg,#9a6bffaa 8deg,transparent 12deg,transparent 95deg,#4fe3ffaa 98deg,transparent 102deg,transparent 168deg,#ff4fd8aa 171deg,transparent 176deg,transparent 240deg,#9a6bffaa 243deg,transparent 249deg,transparent 300deg,#4fe3ff88 303deg,transparent 307deg);-webkit-mask:radial-gradient(circle at 74% 22%,transparent 0 3vmin,#000 5vmin,transparent 38vmin);mask:radial-gradient(circle at 74% 22%,transparent 0 3vmin,#000 5vmin,transparent 38vmin);transform-origin:74% 22%;will-change:transform,opacity;animation:vent 4s ease-in-out infinite}
 @keyframes vent{50%{opacity:.4;transform:rotate(6deg) scale(1.08)}}
 @media(prefers-reduced-motion:reduce){.b6::before{animation:none}}
 .b7{background:radial-gradient(circle at 22% 150%,#0a1a4a 0 52%,#3b8cffaa 53%,#4fe3ff33 56%,transparent 63%),radial-gradient(ellipse 40% 30% at 70% 25%,#4fe3ff14,transparent 70%)}
-.b7 svg{position:absolute;right:6vw;top:15vh;width:min(62vmin,540px);opacity:.7;filter:drop-shadow(0 0 14px #4fe3ff44);animation:stn 10s ease-in-out infinite alternate}
+.b7 svg{position:absolute;right:6vw;top:15vh;width:min(62vmin,540px);opacity:.7;will-change:transform;animation:stn 10s ease-in-out infinite alternate}
 @keyframes stn{from{transform:translateY(-6px) rotate(-9deg)}to{transform:translateY(8px) rotate(-6deg)}}
 .b7 .lt{animation:tw 1.4s infinite alternate}
-nav button i{position:relative;width:44px;height:44px;box-shadow:inset -9px -7px 14px #000c,0 0 12px -2px var(--c);animation:pspin 24s linear infinite}
+nav button i{position:relative;width:44px;height:44px;box-shadow:inset -9px -7px 14px #000c,0 0 12px -2px var(--c)}
 @keyframes pspin{to{background-position:44px 0}}
 nav button i::after{content:"";position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle at 30% 26%,#fff7 0,transparent 36%),radial-gradient(circle at 72% 78%,transparent 38%,#000c 100%);pointer-events:none}
 nav button[data-pl="0"] i{background:radial-gradient(ellipse 30% 22% at 34% 36%,#3f9a3a 0 60%,transparent 64%),radial-gradient(ellipse 14% 24% at 42% 68%,#4a9a3a 0 60%,transparent 64%),radial-gradient(ellipse 22% 28% at 72% 38%,#86a03a 0 60%,transparent 64%),radial-gradient(ellipse 16% 10% at 76% 68%,#b0903a 0 60%,transparent 64%),radial-gradient(ellipse 28% 5% at 55% 52%,#fffc 0 55%,transparent 62%),radial-gradient(ellipse 22% 4% at 30% 22%,#fffb 0 55%,transparent 62%),radial-gradient(ellipse 40% 8% at 50% 3%,#fff 0 60%,transparent 64%),radial-gradient(circle at 35% 30%,#4fa3ff,#1a4fb8 60%,#0a1f66)}
@@ -66,7 +65,7 @@ nav button[data-pl="3"] i::before{content:"";position:absolute;left:50%;top:50%;
 nav button[data-pl="4"] i{background:radial-gradient(ellipse 14% 9% at 40% 46%,#0a1a6acc 0 60%,transparent 72%),radial-gradient(ellipse 26% 4% at 62% 62%,#ffffffaa 0 55%,transparent 65%),linear-gradient(180deg,transparent 30%,#ffffff22 34%,transparent 42%,#00004422 60%,transparent 70%),radial-gradient(circle at 35% 30%,#7aa8ff,#2a4fd8 55%,#0b1a6a)}
 @media(prefers-reduced-motion:reduce){nav button i{animation:none}}
 nav button[data-pl="0"] i{background:#1a56b0;overflow:hidden;animation:none}
-nav button i svg{position:absolute;left:0;top:0;width:176px;height:44px;animation:ewspin 36s linear infinite}
+nav button i svg{position:absolute;left:0;top:0;width:176px;height:44px;will-change:transform;animation:ewspin 36s linear infinite}
 @keyframes ewspin{to{transform:translateX(-88px)}}
 nav button[data-pl="0"] i::before{content:"";position:absolute;inset:-1px;border-radius:50%;box-shadow:inset 0 0 6px 2px #9fd8ffaa,0 0 8px 2px #4fa3ff88;z-index:2;pointer-events:none}
 @media(prefers-reduced-motion:reduce){nav button i svg{animation:none}}
@@ -83,7 +82,7 @@ nav button[data-pl="0"] i::before{content:"";position:absolute;inset:-1px;border
 .b4{background:radial-gradient(ellipse 35% 30% at 66% 28%,#ff4fd826,transparent 70%)}
 .b4::before{inset:auto;left:calc(66% - 24vmin);top:calc(28% - 6vmin);width:48vmin;height:12vmin;border-radius:50%;background:radial-gradient(ellipse,#000 0 38%,#ffd6f6cc 40%,#ff7ad9aa 52%,#ff4fd855 70%,transparent 100%);transform:rotate(-16deg);filter:blur(1.5px);opacity:.55}
 :root{--P:min(95vw,110vh)}
-.pl{position:absolute;z-index:-1;width:var(--P);height:var(--P);right:calc(var(--P)*-.25);bottom:calc(var(--P)*-.82);border-radius:50%;box-shadow:0 0 90px -10px var(--c);pointer-events:none}
+.pl{position:absolute;z-index:-1;width:var(--P);height:var(--P);right:calc(var(--P)*-.25);bottom:calc(var(--P)*-.82);border-radius:50%;box-shadow:0 0 50px -10px var(--c);pointer-events:none;will-change:transform}
 .pl::after{content:"";position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle at 28% 22%,transparent 0 28%,#000d 88%)}
 .pl.r::before{content:"";position:absolute;left:-25%;right:-25%;top:30%;height:40%;border-radius:50%;border:16px solid #aef4ff77;transform:rotate(-12deg);box-shadow:0 0 30px #4fe3ff66}
 .p0{--c:#c6f432;background:radial-gradient(circle at 30% 20%,#f1ffa0,#8fd11c 45%,#2c5a0c)}
@@ -92,7 +91,7 @@ nav button[data-pl="0"] i::before{content:"";position:absolute;inset:-1px;border
 .p3{--c:#b06bff;background:conic-gradient(from 40deg at 40% 40%,#7a3bff,#ff6bd6,#3b1d9e,#b06bff,#7a3bff)}
 .p4{--c:#ff4fd8;background:radial-gradient(circle at 70% 30%,#ff9be8 0 4%,transparent 5%),radial-gradient(circle at 40% 55%,#c4208f 0 6%,transparent 7%),radial-gradient(circle at 30% 20%,#ffb0ee,#ff4fd8 45%,#7a1060)}
 #fig{position:fixed;z-index:6;right:3vw;bottom:calc(var(--P)*.17);width:min(40vw,430px);pointer-events:none}
-#float{animation:bob 5s ease-in-out infinite}
+#float{animation:bob 5s ease-in-out infinite;will-change:transform}
 @keyframes bob{50%{transform:translateY(-9px)}}
 #svg{position:relative;aspect-ratio:1;filter:drop-shadow(0 0 18px var(--glow));transition:filter 1s}
 .fl,.ln,#svg svg{position:absolute;inset:0;width:100%;height:100%}
@@ -240,7 +239,8 @@ function jump(d){const H=Math.min(innerHeight*.28,260),r=7*d;return[
 const cv=document.getElementById('stars'),g=cv.getContext('2d');let W,H,S=[];
 function rs(){W=cv.width=innerWidth;H=cv.height=innerHeight}
 addEventListener('resize',rs);rs();
-for(let k=0;k<260;k++)S.push({a:Math.random()*6.283,r:Math.random()*Math.hypot(innerWidth,innerHeight)/2,z:Math.random()*.9+.1,h:Math.random()*360});
+for(let k=0;k<130;k++)S.push({a:Math.random()*6.283,r:Math.random()*Math.hypot(innerWidth,innerHeight)/2,z:Math.random()*.9+.1,h:Math.random()*360});
+S.forEach(s=>s.col=`hsla(${s.h>200?s.h:220},80%,${70+s.z*30}%,${.35+s.z*.65})`);
 (function f(){
  g.clearRect(0,0,W,H);const cx=W/2,cy=H/2,M=Math.hypot(cx,cy);
  warp+=(1-warp)*.04;
@@ -249,7 +249,7 @@ for(let k=0;k<260;k++)S.push({a:Math.random()*6.283,r:Math.random()*Math.hypot(i
   s.r+=(.12+s.z*.5)*warp*(.4+s.r/M*1.4);
   if(s.r>M){s.r=Math.random()*40;s.a=Math.random()*6.283}
   const x=cx+Math.cos(s.a)*s.r,y=cy+Math.sin(s.a)*s.r;
-  g.strokeStyle=`hsla(${s.h>200?s.h:220},80%,${70+s.z*30}%,${.35+s.z*.65})`;
+  g.strokeStyle=s.col;
   g.lineWidth=s.z*1.8;g.beginPath();g.moveTo(warp>2?px:x,warp>2?py:y);g.lineTo(x+.01,y);g.stroke();
  }
  requestAnimationFrame(f);
@@ -257,5 +257,3 @@ for(let k=0;k<260;k++)S.push({a:Math.random()*6.283,r:Math.random()*Math.hypot(i
 </script>
 </body>
 </html>
-
-</body></html>
