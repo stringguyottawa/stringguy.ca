@@ -198,12 +198,12 @@ function place(i,d){const b=btns[i];mk.style.left=Math.round(b.offsetLeft+b.offs
 place(0);addEventListener('resize',()=>place(cur));
 function go(i,e){
  if(busy||i===cur)return;busy=true;mark(i);
- const n=secs[i],o=secs[cur],D=RM?1:800;
+ const n=secs[i],o=secs[cur],D=RM?1:800,d=i>cur?1:-1,po=o.querySelector('.pl'),pn=n.querySelector('.pl'),gh=po.cloneNode();
+ gh.style.zIndex=1;document.body.appendChild(gh);pn.style.visibility='hidden';
  o.classList.remove('on');n.classList.add('on');n.scrollTop=0;
- document.getElementById('morph').animate(jump(i>cur?1:-1),{duration:D});
- setTimeout(()=>svg.dataset.f=forms[i],D*.5);
- place(i,i>cur?1:-1);
- setTimeout(()=>{cur=i;busy=false},D);
+ document.getElementById('morph').animate(jump(d),{duration:D});
+ setTimeout(()=>{svg.dataset.f=forms[i];pn.style.visibility='';gh.remove()},D*.5);
+ setTimeout(()=>{place(i,d);cur=i;busy=false},D);
 }
 addEventListener('keydown',e=>{if(e.key==='ArrowRight')go((cur+1)%5);if(e.key==='ArrowLeft')go((cur+4)%5)});
 
